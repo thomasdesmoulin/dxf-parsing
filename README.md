@@ -12,9 +12,9 @@ npm install dxf-parsing
 ## Usage
 
 ```javascript
-var dxfParsing = require('dxf-parsing').Parser;
+var dxfParsing = require('dxf-parsing');
 
-var dxf = new dxfParsing.Parser();
+var dxf = dxfParsing.Parser;
 
 
 var section = dxf.getSections({ dxfPath : dxfPath, 
