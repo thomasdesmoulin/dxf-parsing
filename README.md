@@ -19,10 +19,11 @@ var dxf = new dxfParsing.Parser();
 
 var section = dxf.getSections({ dxfPath : dxfPath, 
                                 [sectionName : "entities"]
-    	}, function(sectionTab) {
-    	   polygons = dxf.getPolygons(sectionTab);
-    	   texts = dxf.getTexts(sectionTab);
-    	   ...
+    }, function(sectionTab) {
+       polygons = dxf.getPolygons(sectionTab);
+       texts = dxf.getTexts(sectionTab);
+       ...
+    }
 ```
     	   
     	   
