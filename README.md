@@ -1,4 +1,4 @@
-svgutils
+dxf-parsing
 ========
 
 dxf-parsing is made to parse dxf files, polygon and text right now.
