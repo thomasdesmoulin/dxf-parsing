@@ -1,0 +1,29 @@
+{
+  "name": "dxf-parsing",
+  "version": "0.0.1",
+  "description": "Parsing of dxf files",
+  "main": "index.js",
+  "dependencies": {
+    "byline": "^4.1.1",
+    "underscore": "^1.6.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thomasdesmoulin/dxf-parsing.git"
+  },
+  "keywords": [
+    "dxf",
+    "parse",
+    "polygon"
+  ],
+  "author": "Thomas Desmoulin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thomasdesmoulin/dxf-parsing/issues"
+  },
+  "homepage": "https://github.com/thomasdesmoulin/dxf-parsing"
+}
