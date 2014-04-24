@@ -1,15 +1,15 @@
 'use strict';
 
-var	  byline     = require("byline"),
+var   byline     = require("byline"),
       fs         = require("fs"),
       utils      = require(__dirname+'/utils.js'),
       staff      = require(__dirname+'/staff.js');
 	    
 
-var Parser = function Parser() {};
+var Parser = {};
 
 
-Parser.prototype.getSections = function(params, callback){
+Parser.getSections = function(params, callback){
 
   var stream          = byline(fs.createReadStream(params.dxfPath, { encoding: 'utf8' })),
       sectionNameTab  = ['HEADER', 'CLASSES', 'TABLES', 'BLOCKS', 'ENTITIES', 'OBJECTS', 'THUMBNAILIMAGE'],
@@ -50,7 +50,7 @@ Parser.prototype.getSections = function(params, callback){
 
 
 
-Parser.prototype.getPolygons = function (sectionTab){
+Parser.getPolygons = function (sectionTab){
   var polygons    = [],
       countPoly   = 0,
       lwpolyline  = false;
@@ -75,7 +75,7 @@ Parser.prototype.getPolygons = function (sectionTab){
 
 
 
-Parser.prototype.getTexts = function (sectionTab){
+Parser.getTexts = function (sectionTab){
   var texts       = [],
       countTexts  = 0,
       text        = false;
@@ -100,7 +100,7 @@ Parser.prototype.getTexts = function (sectionTab){
 
 
 
-Parser.prototype.getLayers = function (sectionTab){
+Parser.getLayers = function (sectionTab){
   var layers  = [],
       tab     = ['LWPOLYLINE', 'TEXT', 'MTEXT'],
       get     = false;
@@ -118,7 +118,7 @@ Parser.prototype.getLayers = function (sectionTab){
 }
 
 
-Parser.prototype.getMappings = function (texts, polygons){
+Parser.getMappings = function (texts, polygons){
   var mapping=[], textsAlone= texts;
 
   texts.forEach(function (text, t){
@@ -139,7 +139,7 @@ Parser.prototype.getMappings = function (texts, polygons){
   return {map : mapping, textsAlone : textsAlone};
 }
 
-Parser.prototype.getDimension = function (polygons){
+Parser.getDimension = function (polygons){
   var minPoint = new utils.point(0,0),
       maxPoint = new utils.point(0,0),
       dim = {};
@@ -157,7 +157,7 @@ Parser.prototype.getDimension = function (polygons){
 }
 
 
-Parser.prototype.splitPoly = function (mappings, polygons){
+Parser.splitPoly = function (mappings, polygons){
 
   mappings.forEach(function (mapping, mti){
 
