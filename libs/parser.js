@@ -1,6 +1,6 @@
 'use strict';
 
-var	  byline     = require("byline"),
+var   byline     = require("byline"),
       fs         = require("fs"),
       utils      = require(__dirname+'/utils.js'),
       staff      = require(__dirname+'/staff.js');
