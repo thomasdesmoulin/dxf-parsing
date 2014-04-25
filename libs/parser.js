@@ -5,7 +5,6 @@ var   byline     = require("byline"),
       utils      = require(__dirname+'/utils.js'),
       staff      = require(__dirname+'/staff.js');
 	    
-
 var Parser = {};
 
 
