@@ -5,9 +5,6 @@ var _ = require('underscore');
 var Utils = {};
 
 
-
-
-
 Utils.point = function (x,y) {
 
     this.x = x;
