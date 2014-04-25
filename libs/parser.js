@@ -49,7 +49,6 @@ Parser.getSections = function(params, callback){
 
 
 
-
 Parser.getPolygons = function (sectionTab){
   var polygons    = [],
       countPoly   = 0,
@@ -71,8 +70,6 @@ Parser.getPolygons = function (sectionTab){
 
   return polygons;
 }
-
-
 
 
 Parser.getTexts = function (sectionTab){
@@ -98,8 +95,6 @@ Parser.getTexts = function (sectionTab){
 }
 
 
-
-
 Parser.getLayers = function (sectionTab){
   var layers  = [],
       tab     = ['LWPOLYLINE', 'TEXT', 'MTEXT'],
@@ -116,6 +111,7 @@ Parser.getLayers = function (sectionTab){
 
   return layers;
 }
+
 
 
 Parser.getMappings = function (texts, polygons){
@@ -138,6 +134,8 @@ Parser.getMappings = function (texts, polygons){
   });
   return {map : mapping, textsAlone : textsAlone};
 }
+
+
 
 Parser.getDimension = function (polygons){
   var minPoint = new utils.point(0,0),

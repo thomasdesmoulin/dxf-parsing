@@ -4,6 +4,10 @@ var _ = require('underscore');
 
 var Utils = {};
 
+
+
+
+
 Utils.point = function (x,y) {
 
     this.x = x;
@@ -24,7 +28,6 @@ Utils.unset = function(tab, val){
   }
 
 
-
 // return if a point is inside a polygon
 Utils.pnpoly = function (points, test) {
   var i, j, c = false;
@@ -36,7 +39,6 @@ Utils.pnpoly = function (points, test) {
   }
   return c;
 }
-
 
 module.exports = Utils;
 
