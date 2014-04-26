@@ -4,14 +4,14 @@ var _ = require('underscore');
 
 var Utils = {};
 
-
+//creat a point
 Utils.point = function (x,y) {
 
     this.x = x;
     this.y = y;
   }
 
-
+//return a copy of tab whithout the val
 Utils.unset = function(tab, val){
 
     var newTab=_.map(tab, function(point, i){
