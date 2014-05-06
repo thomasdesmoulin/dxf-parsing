@@ -20,6 +20,7 @@ Parser.getSections = function(params, callback){
   stream.on('data', function(line) {
 
     if (sectionNameTab.indexOf(line) != -1){
+
       sectionCur = line.toLowerCase();
       section = true;
       dxfTab[sectionCur] = [];
@@ -27,28 +28,24 @@ Parser.getSections = function(params, callback){
     }
     else if (section == true){
         if (line == 'ENDSEC') {
-          endsec=true;
-          section=false;
+          endsec = true;
+          section = false;
           sectionCur = '';
         }
-        else if (endsec == false) {
-          dxfTab[sectionCur].push(line);
-        }
+        else if (endsec == false) dxfTab[sectionCur].push(line);
       }
   });
+
   stream.on('end', function(){
-    if(params.sectionName != null){
-      callback(dxfTab[params.sectionName]);
-    }
-    else{
-      callback(dxfTab);
-    }
+    if (params.sectionName != null) callback(dxfTab[params.sectionName]);
+    else callback(dxfTab);
   });
 }
 
 
 
 Parser.getPolygons = function (sectionTab){
+
   var polygons    = [],
       countPoly   = 0,
       lwpolyline  = false;
@@ -72,6 +69,7 @@ Parser.getPolygons = function (sectionTab){
 
 
 Parser.getTexts = function (sectionTab){
+
   var texts       = [],
       countTexts  = 0,
       text        = false;
@@ -95,6 +93,7 @@ Parser.getTexts = function (sectionTab){
 
 
 Parser.getLayers = function (sectionTab){
+
   var layers  = [],
       tab     = ['LWPOLYLINE', 'TEXT', 'MTEXT'],
       get     = false;
@@ -114,6 +113,7 @@ Parser.getLayers = function (sectionTab){
 
 
 Parser.getMappings = function (texts, polygons){
+
   var mapping=[], textsAlone= texts;
 
   texts.forEach(function (text, t){
@@ -136,10 +136,32 @@ Parser.getMappings = function (texts, polygons){
 
 
 
+
+Parser.getParameters = function (sectionTab){
+
+  var params = {originePoint : null, viewCenterPoint : null, rotateAngle : null},
+      vPort  = false;
+
+  sectionTab.forEach(function (line, li){
+    if (line == 'AcDbViewportTableRecord') vPort = true;
+
+    else if (vPort == true && line == ' 12') params.viewCenterPoint = new utils.point(parseFloat(sectionTab[li+1]), parseFloat(sectionTab[li+3]));
+    else if (vPort == true && line == ' 13') params.originePoint = new utils.point(parseFloat(sectionTab[li+1]), parseFloat(sectionTab[li+3]));
+    else if (vPort == true && line == ' 51') params.rotateAngle = parseFloat(sectionTab[li+1]);
+
+    else if (vPort == true && params.rotateAngle != null && params.originePoint != null && params.viewCenterPoint != null) vPort=false;
+  });
+
+  return params;
+}
+
+
+
 Parser.getDimension = function (polygons){
+
   var minPoint = new utils.point(0,0),
       maxPoint = new utils.point(0,0),
-      dim = {};
+      dim      = {};
 
   polygons.forEach(function (polygon, p) {
     polygon.points.forEach(function (tpoint, i) {
