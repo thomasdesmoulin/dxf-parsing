@@ -12,10 +12,10 @@ Staff.findNearestPoint = function (tabPoints, refPoint){
 
   tabPoints.forEach(function (point, pi){
 
-    var distCur  = Math.sqrt(Math.pow(refPoint.x-point.x, 2)+Math.pow(refPoint.y-point.y, 2);
+    var distCur  = Math.sqrt(Math.pow(refPoint.x-point.x, 2)+Math.pow(refPoint.y-point.y, 2));
 
     minDist      = distCur <= minDist ? distCur : (pi == 0 ? distCur : minDist);
-    nearestPoint = distCur <= minDist ? point;
+    nearestPoint = distCur <= minDist ? point : nearestPoint;
     
   });
   return nearestPoint;
