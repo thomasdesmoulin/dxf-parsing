@@ -16,6 +16,7 @@ var dxfParsing = require('dxf-parsing');
 
 var dxf      = dxfParsing.Parser,
 	polygons = [],
+	circles  = [],
 	texts 	 = [];
 
 
@@ -24,6 +25,7 @@ var section = dxf.getSections({ dxfPath : dxfPath,
     }, function(sectionTab) {
        polygons = dxf.getPolygons(sectionTab);
        texts = dxf.getTexts(sectionTab);
+       circles = dxf.getCircles(sectionTab);
        ...
     }
 ```
