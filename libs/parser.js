@@ -68,6 +68,29 @@ Parser.getPolygons = function (sectionTab){
 }
 
 
+Parser.getCircles = function (sectionTab){
+
+    var circles       = [],
+        countCircles  = 0,
+        circle        = false;
+
+    sectionTab.forEach(function (line, li){
+        if(line == 'CIRCLE'){
+            circle = true;
+            circles[countCircles] = {cInd : countCircles, layer : null, rayon : null, point : null};
+        }
+        else if(circle == true && line == '  8') circles[countCircles].layer = sectionTab[li+1];
+        else if(circle == true && line == ' 10') circles[countCircles].point = new utils.point(parseFloat(sectionTab[li+1]), parseFloat(sectionTab[li+3]));
+        else if(circle == true && line == ' 40') circles[countCircles].rayon = sectionTab[li+1];
+        else if(circle == true && circles[countCircles].point != null && circles[countCircles].rayon != null){
+            circle=false;
+            countCircles++;
+        }
+    });
+
+    return circles;
+}
+
 Parser.getTexts = function (sectionTab){
 
   var texts       = [],
@@ -95,7 +118,7 @@ Parser.getTexts = function (sectionTab){
 Parser.getLayers = function (sectionTab){
 
   var layers  = [],
-      tab     = ['LWPOLYLINE', 'TEXT', 'MTEXT'],
+      tab     = ['LWPOLYLINE', 'TEXT', 'MTEXT', 'CIRCLE'],
       get     = false;
 
   sectionTab.forEach(function (line, li){

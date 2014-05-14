@@ -1,6 +1,6 @@
 {
   "name": "dxf-parsing",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Parsing of dxf files",
   "main": "index.js",
   "dependencies": {
