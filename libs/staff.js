@@ -5,7 +5,12 @@ var utils = require(__dirname+'/utils.js');
 var Staff = {};
 
 
-
+/**
+ * Return the nearest point of reference point
+ * @param   {[Utils.point]}   tabPoints
+ * @param   {Utils.point}     refPoint
+ * @returns {Utils.point}     nearestPoint
+ */
 Staff.findNearestPoint = function (tabPoints, refPoint){
   var minDist       = 0, 
       nearestPoint  = new utils.point(0,0);
@@ -19,9 +24,15 @@ Staff.findNearestPoint = function (tabPoints, refPoint){
     
   });
   return nearestPoint;
-}
+};
 
 
+
+/**
+ * Return the point witch is on the center of the points in tabPoints
+ * @param   {[Utils.point]} tabPoints
+ * @returns {Utils.point}   center
+ */
 Staff.getCenter = function (tabPoints) {
 
   var min     = new utils.point(0,0),
@@ -39,7 +50,7 @@ Staff.getCenter = function (tabPoints) {
   center.y = (min.y + max.y)/2;
 
   return center;
-}
+};
 
 
 module.exports = Staff;

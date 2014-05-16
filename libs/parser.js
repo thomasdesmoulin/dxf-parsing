@@ -7,67 +7,79 @@ var   byline     = require("byline"),
 	    
 var Parser = {};
 
+/**
+ * Transform a dxf file into an array where keys are the names of dxf sections
+ * @param {Object}     params      dxfPah : path/of/dxf/file, [sectionName : header|classes|tables|blocks|entities|objects|tumbnailimage]
+ * @param {Function}   callback    Callback function
+ */
+Parser.getSections = function (params, callback) {
 
-Parser.getSections = function(params, callback){
+    var stream = byline(fs.createReadStream(params.dxfPath, { encoding: 'utf8' })),
+        sectionNameTab = ['HEADER', 'CLASSES', 'TABLES', 'BLOCKS', 'ENTITIES', 'OBJECTS', 'THUMBNAILIMAGE'],
+        sectionCur = '',
+        dxfTab = [],
+        section = false,
+        endsec = false;
 
-  var stream          = byline(fs.createReadStream(params.dxfPath, { encoding: 'utf8' })),
-      sectionNameTab  = ['HEADER', 'CLASSES', 'TABLES', 'BLOCKS', 'ENTITIES', 'OBJECTS', 'THUMBNAILIMAGE'],
-      sectionCur      = '',
-      dxfTab          = [],
-      section         = false,
-      endsec          = false;
+    stream.on('data', function (line) {
 
-  stream.on('data', function(line) {
+        if (sectionNameTab.indexOf(line) != -1) {
 
-    if (sectionNameTab.indexOf(line) != -1){
-
-      sectionCur = line.toLowerCase();
-      section = true;
-      dxfTab[sectionCur] = [];
-      endsec = false;
-    }
-    else if (section == true){
-        if (line == 'ENDSEC') {
-          endsec = true;
-          section = false;
-          sectionCur = '';
+            sectionCur = line.toLowerCase();
+            section = true;
+            dxfTab[sectionCur] = [];
+            endsec = false;
         }
-        else if (endsec == false) dxfTab[sectionCur].push(line);
-      }
-  });
+        else if (section == true) {
+            if (line == 'ENDSEC') {
+                endsec = true;
+                section = false;
+                sectionCur = '';
+            }
+            else if (endsec == false) dxfTab[sectionCur].push(line);
+        }
+    });
 
-  stream.on('end', function(){
-    if (params.sectionName != null) callback(dxfTab[params.sectionName]);
-    else callback(dxfTab);
-  });
-}
-
-
-
-Parser.getPolygons = function (sectionTab){
-
-  var polygons    = [],
-      countPoly   = 0,
-      lwpolyline  = false;
-
-  sectionTab.forEach(function (line, li){
-    if(line == 'LWPOLYLINE'){
-      lwpolyline = true;
-      polygons[countPoly] = {pInd : countPoly, layer : null, nPoint : null, points: []};
-    }
-    else if(lwpolyline == true && line == '  8') polygons[countPoly].layer=sectionTab[li+1];
-    else if(lwpolyline == true && line == ' 90') polygons[countPoly].nPoint=parseInt(sectionTab[li+1]);
-    else if(lwpolyline == true && line == ' 10') polygons[countPoly].points.push(new utils.point(parseFloat(sectionTab[li+1]), parseFloat(sectionTab[li+3])));
-    else if(lwpolyline == true && polygons[countPoly].points.length === polygons[countPoly].nPoint){ 
-      lwpolyline=false;
-      countPoly++;
-    }
-  });
-
-  return polygons;
-}
+    stream.on('end', function () {
+        if (params.sectionName != null) callback(dxfTab[params.sectionName]);
+        else callback(dxfTab);
+    });
+};
 
 
+/**
+ * Return an array of polygons
+ * @param   {Array}   sectionTab      The polygons are in the entities section so you should use sectionTab.entities
+ * @returns {Array}   polygons        An array of polygons
+ */
+Parser.getPolygons = function (sectionTab) {
+
+    var polygons = [],
+        countPoly = 0,
+        lwpolyline = false;
+
+    sectionTab.forEach(function (line, li) {
+        if (line == 'LWPOLYLINE') {
+            lwpolyline = true;
+            polygons[countPoly] = {pInd: countPoly, layer: null, nPoint: null, points: []};
+        }
+        else if (lwpolyline == true && line == '  8') polygons[countPoly].layer = sectionTab[li + 1];
+        else if (lwpolyline == true && line == ' 90') polygons[countPoly].nPoint = parseInt(sectionTab[li + 1]);
+        else if (lwpolyline == true && line == ' 10') polygons[countPoly].points.push(new utils.point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3])));
+        else if (lwpolyline == true && polygons[countPoly].points.length === polygons[countPoly].nPoint) {
+            lwpolyline = false;
+            countPoly++;
+        }
+    });
+
+    return polygons;
+};
+
+/**
+ * Return an array of circles
+ * @param   {Array}   sectionTab      The circles are in the entities section so you should use sectionTab.entities
+ * @returns {Array}   circles         An array of circles
+ */
 Parser.getCircles = function (sectionTab){
 
     var circles       = [],
@@ -89,8 +101,15 @@ Parser.getCircles = function (sectionTab){
     });
 
     return circles;
-}
+};
 
+
+
+/**
+ * Return an array of texts
+ * @param   {Array}   sectionTab     The texts are in the entities section so you should use sectionTab.entities
+ * @returns {Array}   texts          An array of texts
+ */
 Parser.getTexts = function (sectionTab){
 
   var texts       = [],
@@ -112,13 +131,18 @@ Parser.getTexts = function (sectionTab){
   });
 
   return texts;
-}
+};
 
-
-Parser.getLayers = function (sectionTab){
+/**
+ * Return all layers of the appropriate entities
+ * @param   {Object}    params       ent : Array("TEXT","MTEXT","LWPOLYLINE","CIRCLES")
+ * @param   {Array}     sectionTab   The layers are in the entities section so you should use sectionTab.entities
+ * @returns {Array}     layers       Layers of the appropriate entities
+ */
+Parser.getLayersByEntities = function (params, sectionTab){
 
   var layers  = [],
-      tab     = ['LWPOLYLINE', 'TEXT', 'MTEXT', 'CIRCLE'],
+      tab     = params.ent,
       get     = false;
 
   sectionTab.forEach(function (line, li){
@@ -131,15 +155,20 @@ Parser.getLayers = function (sectionTab){
   });
 
   return layers;
-}
+};
 
 
-
+/**
+ * Established a mapping between polygons and texts
+ * @param {Array}    texts
+ * @param {Array}    polygons
+ * @returns {Object} {map: Array, textsAlone: *}
+ */
 Parser.getMappings = function (texts, polygons){
 
   var mapping=[], textsAlone= texts;
 
-  texts.forEach(function (text, t){
+  texts.forEach(function (text){
     polygons.forEach(function (polygon, p){
       if(utils.pnpoly(polygon.points, text.point)){
         if(!mapping[p]) {
@@ -154,37 +183,44 @@ Parser.getMappings = function (texts, polygons){
       }
     });
   });
-  return {map : mapping, textsAlone : textsAlone};
-}
+    return {map : mapping, textsAlone : textsAlone};
+};
+
+
+/**
+ * Get Parameters : the origin point of the view, its center point and its rotate angle
+ * @param {Array}    sectionTab     The parameters are in the tables section so you should use sectionTab.tables
+ * @returns {Object} params         originPoint, viewCenterPoint, rotateAngle
+ */
+Parser.getParameters = function (sectionTab) {
+
+    var params = {originPoint: null, viewCenterPoint: null, rotateAngle: null},
+        vPort = false;
+
+    sectionTab.forEach(function (line, li) {
+        if (line == 'AcDbViewportTableRecord') vPort = true;
+
+        else if (vPort == true && line == ' 12') params.viewCenterPoint = new utils.point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
+        else if (vPort == true && line == ' 13') params.originPoint = new utils.point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
+        else if (vPort == true && line == ' 51') params.rotateAngle = parseFloat(sectionTab[li + 1]);
+
+        else if (vPort == true && params.rotateAngle != null && params.originPoint != null && params.viewCenterPoint != null) vPort = false;
+    });
+
+    return params;
+};
 
 
 
-
-Parser.getParameters = function (sectionTab){
-
-  var params = {originePoint : null, viewCenterPoint : null, rotateAngle : null},
-      vPort  = false;
-
-  sectionTab.forEach(function (line, li){
-    if (line == 'AcDbViewportTableRecord') vPort = true;
-
-    else if (vPort == true && line == ' 12') params.viewCenterPoint = new utils.point(parseFloat(sectionTab[li+1]), parseFloat(sectionTab[li+3]));
-    else if (vPort == true && line == ' 13') params.originePoint = new utils.point(parseFloat(sectionTab[li+1]), parseFloat(sectionTab[li+3]));
-    else if (vPort == true && line == ' 51') params.rotateAngle = parseFloat(sectionTab[li+1]);
-
-    else if (vPort == true && params.rotateAngle != null && params.originePoint != null && params.viewCenterPoint != null) vPort=false;
-  });
-
-  return params;
-}
-
-
-
+/**
+ * Return the min x,z  and the max x,y of the polygon's array
+ * @param   {Array}     polygons
+ * @returns {Object}    {min: point, max: point}
+ */
 Parser.getDimension = function (polygons){
 
   var minPoint = new utils.point(0,0),
-      maxPoint = new utils.point(0,0),
-      dim      = {};
+      maxPoint = new utils.point(0,0);
 
   polygons.forEach(function (polygon, p) {
     polygon.points.forEach(function (tpoint, i) {
@@ -194,14 +230,19 @@ Parser.getDimension = function (polygons){
       maxPoint.y = tpoint.y > maxPoint.y ? tpoint.y : (i === 0 && p === 0 ? tpoint.y : maxPoint.y);
     });
   });
-  return dim = {'min': minPoint, 
-                'max': maxPoint,}
-}
+  return {'min': minPoint,
+          'max': maxPoint}
+};
 
-
+/**
+ * Function made to split the polygons with four points where there are two or four text
+ * @param {Object}      mappings
+ * @param {Array}       polygons
+ * @returns {Array}     polygons   theses polygons were split
+ */
 Parser.splitPoly = function (mappings, polygons){
 
-  mappings.forEach(function (mapping, mti){
+  mappings.forEach(function (mapping){
 
     var newPoint    = new utils.point(0,0), newPoint1 = new utils.point(0,0), 
         newPoint2   = new utils.point(0,0), newPoint3 = new utils.point(0,0),
@@ -261,6 +302,7 @@ Parser.splitPoly = function (mappings, polygons){
       polygons.push({pInd : mapping.polygon.pInd+polygons.length+2, layer : mapping.polygon.layer, nPoint : mapping.polygon.nPoint, points: newPolygons[3]});
     }
   });
+
   return polygons;
 };
 
