@@ -1,6 +1,6 @@
 {
   "name": "dxf-parsing",
-  "version": "0.0.4",
+  "version": "0.1.1",
   "description": "Parsing of dxf files",
   "main": "index.js",
   "dependencies": {
@@ -18,7 +18,8 @@
   "keywords": [
     "dxf",
     "parse",
-    "polygon"
+    "polygon",
+    "circle"
   ],
   "author": "Thomas Desmoulin",
   "license": "BSD-2-Clause",
