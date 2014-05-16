@@ -135,28 +135,51 @@ Parser.getTexts = function (sectionTab){
 
 /**
  * Return all layers of the appropriate entities
- * @param   {Object}    params       ent : Array("TEXT","MTEXT","LWPOLYLINE","CIRCLES")
- * @param   {Array}     sectionTab   The layers are in the entities section so you should use sectionTab.entities
+ * @param   {Object}    params       ent : Array("TEXT","MTEXT","LWPOLYLINE","CIRCLES") sectionTab : sectionTab (The layers are in the entities section so you should use sectionTab.entities)
  * @returns {Array}     layers       Layers of the appropriate entities
  */
-Parser.getLayersByEntities = function (params, sectionTab){
+Parser.getLayersByEntities = function (params){
 
-  var layers  = [],
-      tab     = params.ent,
-      get     = false;
+    var layers  = [],
+        tab     = params.ent,
+        get     = false;
 
-  sectionTab.forEach(function (line, li){
-    if(tab.indexOf(line) != -1){
-      get = true;
-    }
-    else if(get == true && line == '  8'){
-      if(layers.indexOf(sectionTab[li+1]) == -1) layers.push(sectionTab[li+1]);
-    } 
-  });
+    params.sectionTab.forEach(function (line, li){
+        if(tab.indexOf(line) != -1){
+            get = true;
+        }
+        else if(get == true && line == '  8'){
+            if(layers.indexOf(params.sectionTab[li+1]) == -1) layers.push(params.sectionTab[li+1]);
+        }
+    });
 
-  return layers;
+    return layers;
 };
 
+/**
+ * Return the all layers of the dxf file
+ * @param {Array}    sectionTab     All layers are in the tables section so you should use sectionTab.tables
+ * @returns {Array}  layer
+ */
+Parser.getAllLayers = function (sectionTab){
+
+    var layers       = [],
+        getLayer     = false;
+
+    sectionTab.forEach(function (line, li){
+        if(line == "AcDbLayerTableRecord") getLayer = true;
+
+        else if(getLayer == true && line == '  2'){
+
+            if(layers.indexOf(sectionTab[li+1]) == -1){
+                layers.push(sectionTab[li+1]);
+                getLayer = false;
+            }
+        }
+    });
+
+    return layers;
+};
 
 /**
  * Established a mapping between polygons and texts
