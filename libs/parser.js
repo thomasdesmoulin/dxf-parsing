@@ -9,12 +9,12 @@ var Parser = {};
 
 /**
  * Transform a dxf file into an array where keys are the names of dxf sections
- * @param {Object}     params      dxfPah : path/of/dxf/file
+ * @param {String}     dxfPath     "path/of/dxf/file"
  * @param {Function}   callback    Callback function
  */
-Parser.getSections = function (params, callback) {
+Parser.toArray = function (dxfPath, callback) {
 
-    var stream = byline(fs.createReadStream(params.dxfPath, { encoding: 'utf8' })),
+    var stream = byline(fs.createReadStream(dxfPath, { encoding: 'utf8' })),
         sectionNameTab = ['HEADER', 'CLASSES', 'TABLES', 'BLOCKS', 'ENTITIES', 'OBJECTS', 'THUMBNAILIMAGE'],
         sectionCur = '',
         dxfTab = [],
