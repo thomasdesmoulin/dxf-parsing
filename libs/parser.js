@@ -9,7 +9,7 @@ var Parser = {};
 
 /**
  * Transform a dxf file into an array where keys are the names of dxf sections
- * @param {Object}     params      dxfPah : path/of/dxf/file, [sectionName : header|classes|tables|blocks|entities|objects|tumbnailimage]
+ * @param {Object}     params      dxfPah : path/of/dxf/file
  * @param {Function}   callback    Callback function
  */
 Parser.getSections = function (params, callback) {
@@ -41,8 +41,7 @@ Parser.getSections = function (params, callback) {
     });
 
     stream.on('end', function () {
-        if (params.sectionName != null) callback(dxfTab[params.sectionName]);
-        else callback(dxfTab);
+        callback(dxfTab);
     });
 };
 
@@ -240,7 +239,7 @@ Parser.getParameters = function (sectionTab) {
  * @param   {Array}     polygons
  * @returns {Object}    {min: point, max: point}
  */
-Parser.getDimension = function (polygons){
+Parser.getDimensions = function (polygons){
 
   var minPoint = new utils.point(0,0),
       maxPoint = new utils.point(0,0);
