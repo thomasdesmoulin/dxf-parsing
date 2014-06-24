@@ -43,6 +43,7 @@ Point.prototype.isInside = function isInside(points) {
 };
 
 
+
 /**
  * Return the nearest point and its index of the point
  * @param   {[Point]}   points
@@ -51,16 +52,16 @@ Point.prototype.isInside = function isInside(points) {
 Point.prototype.findNearest = function findNearest(points){
     var minDist = 0,
         ind     = 0,
-        nearest = new Point(),
-        self    = this;
+        nearest = new Point();
 
     points.forEach(function (point, pi){
-        var distCur  = Math.sqrt(Math.pow(self.x-point.x, 2)+Math.pow(self.y-point.y, 2));
+        var distCur  = Math.sqrt(Math.pow(this.x-point.x, 2)+Math.pow(this.y-point.y, 2));
         minDist      = distCur <= minDist ? distCur : (pi == 0 ? distCur : minDist);
         nearest      = distCur <= minDist ? point : nearest;
         ind          = distCur <= minDist ? pi : ind;
-    });
+    }.bind(this));
     return {nearest : nearest, ind : ind};
 };
+
 
 module.exports = Point;
