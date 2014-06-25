@@ -75,7 +75,7 @@ Parser.getPolygons = function (sectionTab) {
         else if (
             polygonBool === true &&
             polygon.numberPoints !== 0 &&
-            polygon.layer !== '' &&
+            polygon.layer !== 'defaultLayer' &&
             polygon.points.length === polygon.numberPoints
          ){
             polygonBool = false;
@@ -112,7 +112,7 @@ Parser.getCircles = function (sectionTab){
         else if(circleBool === true && line === ' 40') circle.setRayon(sectionTab[li+1]);
         else if(
             circleBool === true &&
-            circle.layer !== '' &&
+            circle.layer !== 'defaultLayer' &&
             circle.point !== undefined &&
             circle.rayon !== 0
         ){
@@ -190,33 +190,44 @@ Parser.getParameters = function (sectionTab) {
 
 /**
  * Return all layers of the appropriate entities
- * @param   {Object}    params       ent : Array("TEXT","MTEXT","LWPOLYLINE","CIRCLES") sectionTab : sectionTab (The layers are in the entities section so you should use sectionTab.entities)
- * @returns {Array}     layers       Layers of the appropriate entities
+ * @param    {Array}    sectionTab     The specific layers are in the entities section
+ * @param    {Array}    tabEnt         You can put "text","polygon" or "circle" in the tabEnt (all by default)
+ * @returns  {Array}    layers
  */
-Parser.getLayersByEntities = function (params){
+Parser.getLayersByEntities = function (sectionTab, tabEnt){
 
-    var layers  = [],
-        tab     = params.ent,
-        ent     = false;
+    var layers     = [],
+        tabTmp     = tabEnt || 'all',
+        ent        = false;
 
-    params.sectionTab.forEach(function (line, li){
-        if(tab.indexOf(line) !== -1) ent = true;
-        else if(ent === true && line == '  8'){
-            if(layers.indexOf(params.sectionTab[li+1]) === -1) layers.push(params.sectionTab[li+1]);
-        }
-    });
+    if(tabTmp === 'all') layers = Parser.getAllLayers(sectionTab);
+    else{
+        var sectionTab = sectionTab.entities,
+            tabEnt     = [];
+
+        if (tabTmp.indexOf("text") !== -1) tabEnt.push("MTEXT", "TEXT");
+        if (tabTmp.indexOf("polygon") !== -1) tabEnt.push("LWPOLYLINE");
+        if (tabTmp.indexOf("circle") !== -1) tabEnt.push("CIRCLE");
+
+        sectionTab.forEach(function (line, li){
+            if(tabEnt.indexOf(line) !== -1) ent = true;
+            else if(ent === true && line == '  8'){
+                if(layers.indexOf(sectionTab[li+1]) === -1) layers.push(sectionTab[li+1]);
+            }
+        });
+    }
     return layers;
 };
 
 /**
  * Return the all layers of the dxf file
- * @param {Array}    sectionTab     All layers are in the tables section
- * @returns {Array}  layer
+ * @param   {Array}    sectionTab     All layers are in the tables section
+ * @returns {Array}    layer
  */
 Parser.getAllLayers = function (sectionTab){
 
     var layers       = [],
-        sectionTab   = sectionTab.entities,
+        sectionTab   = sectionTab.tables,
         getLayer     = false;
 
     sectionTab.forEach(function (line, li){

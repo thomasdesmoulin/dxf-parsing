@@ -7,7 +7,7 @@ var Point = require (__dirname + '/point');
  * @constructor
  */
 function Polygon (layer, numberPoints, points) {
-    this.layer        = layer || '';
+    this.layer        = layer || 'defaultLayer';
     this.numberPoints = numberPoints || 0;
     this.points       = points || [];
 }

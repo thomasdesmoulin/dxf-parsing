@@ -8,7 +8,7 @@ var Polygon = require (__dirname + '/polygon'),
  * @constructor
  */
 function Circle (layer, rayon, point) {
-    this.layer  = layer || '';
+    this.layer  = layer || 'defaultLayer';
     this.rayon  = rayon || 0;
     this.point  = point || undefined;
 }
