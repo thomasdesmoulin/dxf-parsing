@@ -37,7 +37,9 @@ Parser.toArray = function (dxfPath, callback) {
                 section = false;
                 sectionCur = '';
             }
-            else if (endsec === false) dxfTab[sectionCur].push(line);
+            else if (endsec === false) {
+                dxfTab[sectionCur].push(line);
+            }
         }
     });
     stream.on('end', function () {
