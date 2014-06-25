@@ -25,7 +25,6 @@ Point.prototype.setY = function setY(y) {
     this.y = y;
 };
 
-
 /**
  * Return if the point is inside a polygon or not
  * @param   {[Point]} points
@@ -41,8 +40,6 @@ Point.prototype.isInside = function isInside(points) {
     }
     return c;
 };
-
-
 
 /**
  * Return the nearest point and its index of the point
@@ -60,6 +57,7 @@ Point.prototype.findNearest = function findNearest(points){
         nearest      = distCur <= minDist ? point : nearest;
         ind          = distCur <= minDist ? pi : ind;
     }.bind(this));
+
     return {nearest : nearest, ind : ind};
 };
 

@@ -16,7 +16,6 @@ Text.prototype.setLayer = function setLayer(layer) {
     this.layer = layer;
 };
 
-
 /**
  * Set the contents
  * @param {String}  contents
@@ -25,7 +24,6 @@ Text.prototype.setContents = function setContents(contents) {
     this.contents = contents;
 };
 
-
 /**
  * Set the point
  * @param {Point}   point
@@ -33,7 +31,6 @@ Text.prototype.setContents = function setContents(contents) {
 Text.prototype.setPoint = function setPoint(point) {
     this.point = point;
 };
-
 
 /**
  * This prototype is made to parse the contents of Text
@@ -56,6 +53,5 @@ Text.prototype.parse = function parse(){
     this.contents = this.contents.replace(/ {1,}/g,' ');
     this.contents = this.contents.trim();
 };
-
 
 module.exports = Text;

@@ -136,7 +136,6 @@ Parser.getTexts = function (sectionTab){
         textBool    = false;
 
     sectionTab.forEach(function (line, li){
-
         if(line == 'TEXT' || line == 'MTEXT'){
             textBool = true;
             text = new Text();
@@ -163,8 +162,30 @@ Parser.getTexts = function (sectionTab){
             if(text.contents !== '') texts.push(text);
         }
     });
-
     return texts;
+};
+
+/**
+ * Get Parameters : the origin point of the view, its center point and its rotate angle
+ * @param   {Array}    sectionTab     The parameters are in the tables section
+ * @returns {Object}   params         originPoint, viewCenterPoint, rotateAngle
+ */
+Parser.getParameters = function (sectionTab) {
+
+    var params     = {originPoint: null, viewCenterPoint: null, rotateAngle: null},
+        sectionTab = sectionTab.tables,
+        vPort      = false;
+
+    sectionTab.forEach(function (line, li) {
+        if (line == 'AcDbViewportTableRecord') vPort = true;
+
+        else if (vPort == true && line == ' 12') params.viewCenterPoint = new utils.point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
+        else if (vPort == true && line == ' 13') params.originPoint = new utils.point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
+        else if (vPort == true && line == ' 51') params.rotateAngle = parseFloat(sectionTab[li + 1]);
+
+        else if (vPort == true && params.rotateAngle != null && params.originPoint != null && params.viewCenterPoint != null) vPort = false;
+    });
+    return params;
 };
 
 /**
@@ -176,69 +197,38 @@ Parser.getLayersByEntities = function (params){
 
     var layers  = [],
         tab     = params.ent,
-        get     = false;
+        ent     = false;
 
     params.sectionTab.forEach(function (line, li){
-        if(tab.indexOf(line) != -1){
-            get = true;
-        }
-        else if(get == true && line == '  8'){
-            if(layers.indexOf(params.sectionTab[li+1]) == -1) layers.push(params.sectionTab[li+1]);
+        if(tab.indexOf(line) !== -1) ent = true;
+        else if(ent === true && line == '  8'){
+            if(layers.indexOf(params.sectionTab[li+1]) === -1) layers.push(params.sectionTab[li+1]);
         }
     });
-
     return layers;
 };
 
 /**
  * Return the all layers of the dxf file
- * @param {Array}    sectionTab     All layers are in the tables section so you should use sectionTab.tables
+ * @param {Array}    sectionTab     All layers are in the tables section
  * @returns {Array}  layer
  */
 Parser.getAllLayers = function (sectionTab){
 
     var layers       = [],
+        sectionTab   = sectionTab.entities,
         getLayer     = false;
 
     sectionTab.forEach(function (line, li){
-        if(line == "AcDbLayerTableRecord") getLayer = true;
-
-        else if(getLayer == true && line == '  2'){
-
-            if(layers.indexOf(sectionTab[li+1]) == -1){
+        if(line === "AcDbLayerTableRecord") getLayer = true;
+        else if(getLayer === true && line === '  2'){
+            if(layers.indexOf(sectionTab[li+1]) === -1){
                 layers.push(sectionTab[li+1]);
                 getLayer = false;
             }
         }
     });
-
     return layers;
 };
-
-/**
- * Get Parameters : the origin point of the view, its center point and its rotate angle
- * @param {Array}    sectionTab     The parameters are in the tables section so you should use sectionTab.tables
- * @returns {Object} params         originPoint, viewCenterPoint, rotateAngle
- */
-Parser.getParameters = function (sectionTab) {
-
-    var params = {originPoint: null, viewCenterPoint: null, rotateAngle: null},
-        vPort = false;
-
-    sectionTab.forEach(function (line, li) {
-        if (line == 'AcDbViewportTableRecord') vPort = true;
-
-        else if (vPort == true && line == ' 12') params.viewCenterPoint = new utils.point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
-        else if (vPort == true && line == ' 13') params.originPoint = new utils.point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
-        else if (vPort == true && line == ' 51') params.rotateAngle = parseFloat(sectionTab[li + 1]);
-
-        else if (vPort == true && params.rotateAngle != null && params.originPoint != null && params.viewCenterPoint != null) vPort = false;
-    });
-
-    return params;
-};
-
-
-
 
 module.exports = Parser;

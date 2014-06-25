@@ -57,7 +57,6 @@ Circle.prototype.toPolygon = function toPolygon(nbSides){
         point.setY(this.point.y + (this.rayon*Math.sin(angCur)));
         polygon.addPoint(point);
     }
-
     return polygon;
 };
 

@@ -2,7 +2,6 @@
 
 var Point = require (__dirname + '/point');
 
-
 /**
  * Polygon's constructor
  * @constructor
@@ -36,7 +35,6 @@ Polygon.prototype.setNumberPoints = function setNumberPoints(numberPoints) {
 Polygon.prototype.addPoint = function addPoint(point) {
     this.points.push(point);
 };
-
 
 /**
  * Return the point witch is on the center of the points in tabPoints
