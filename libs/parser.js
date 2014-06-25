@@ -2,8 +2,10 @@
 
 var   byline     = require("byline"),
       fs         = require("fs"),
-      utils      = require(__dirname+'/utils.js'),
+      utils      = require (__dirname + '/utils'),
       Polygon    = require (__dirname + "/elements/polygon"),
+      Circle     = require (__dirname + "/elements/circle"),
+      Text       = require (__dirname + "/elements/text"),
       Point      = require (__dirname + "/elements/point");
 
 var Parser = {};
@@ -15,12 +17,12 @@ var Parser = {};
  */
 Parser.toArray = function (dxfPath, callback) {
 
-    var stream = byline(fs.createReadStream(dxfPath, { encoding: 'utf8' })),
+    var stream         = byline(fs.createReadStream(dxfPath, { encoding: 'utf8' })),
         sectionNameTab = ['HEADER', 'CLASSES', 'TABLES', 'BLOCKS', 'ENTITIES', 'OBJECTS', 'THUMBNAILIMAGE'],
-        sectionCur = '',
-        dxfTab = [],
-        section = false,
-        endsec = false;
+        sectionCur     = '',
+        dxfTab         = [],
+        section        = false,
+        endsec         = false;
 
     stream.on('data', function (line) {
         if (sectionNameTab.indexOf(line) != -1) {
@@ -29,13 +31,13 @@ Parser.toArray = function (dxfPath, callback) {
             dxfTab[sectionCur] = [];
             endsec = false;
         }
-        else if (section == true) {
-            if (line == 'ENDSEC') {
+        else if (section === true) {
+            if (line === 'ENDSEC') {
                 endsec = true;
                 section = false;
                 sectionCur = '';
             }
-            else if (endsec == false) dxfTab[sectionCur].push(line);
+            else if (endsec === false) dxfTab[sectionCur].push(line);
         }
     });
     stream.on('end', function () {
@@ -50,31 +52,31 @@ Parser.toArray = function (dxfPath, callback) {
  */
 Parser.getPolygons = function (sectionTab) {
 
-    var polygons   = [],
-        polygon    = undefined,
-        sectionTab = sectionTab.entities,
-        lwpolyline = false;
+    var polygons    = [],
+        polygon     = undefined,
+        sectionTab  = sectionTab.entities,
+        polygonBool = false;
 
     sectionTab.forEach(function (line, li) {
-        if (line == 'LWPOLYLINE') {
-            lwpolyline = true;
+        if (line === 'LWPOLYLINE') {
+            polygonBool = true;
             polygon    = new Polygon();
         }
-        else if (lwpolyline == true && line == '  8') polygon.setLayer(sectionTab[li + 1]);
-        else if (lwpolyline == true && line == ' 90') polygon.setNumberPoints(parseInt(sectionTab[li + 1]));
-        else if (lwpolyline == true && line == ' 10') {
+        else if (polygonBool === true && line === '  8') polygon.setLayer(sectionTab[li + 1]);
+        else if (polygonBool === true && line === ' 90') polygon.setNumberPoints(parseInt(sectionTab[li + 1]));
+        else if (polygonBool === true && line === ' 10') {
             var point = new Point();
             point.setX(parseFloat(sectionTab[li + 1]));
             point.setY(parseFloat(sectionTab[li + 3]));
             polygon.addPoint(point);
         }
         else if (
-            lwpolyline == true &&
+            polygonBool === true &&
             polygon.numberPoints !== 0 &&
             polygon.layer !== '' &&
             polygon.points.length === polygon.numberPoints
          ){
-            lwpolyline = false;
+            polygonBool = false;
             polygons.push(polygon);
          }
     });
@@ -88,55 +90,79 @@ Parser.getPolygons = function (sectionTab) {
  */
 Parser.getCircles = function (sectionTab){
 
-    var circles       = [],
-        countCircles  = 0,
-        sectionTab    = sectionTab.entities,
-        circle        = false;
+    var circles    = [],
+        circle     = undefined,
+        sectionTab = sectionTab.entities,
+        circleBool = false;
 
     sectionTab.forEach(function (line, li){
-        if(line == 'CIRCLE'){
-            circle = true;
-            circles[countCircles] = {layer : '', rayon : 0, point : undefined};
+        if(line === 'CIRCLE'){
+            circleBool = true;
+            circle = new Circle();
         }
-        else if(circle == true && line == '  8') circles[countCircles].layer = sectionTab[li+1];
-        else if(circle == true && line == ' 10') circles[countCircles].point = new utils.point(parseFloat(sectionTab[li+1]), parseFloat(sectionTab[li+3]));
-        else if(circle == true && line == ' 40') circles[countCircles].rayon = sectionTab[li+1];
-        else if(circle == true && circles[countCircles].point != undefined && circles[countCircles].rayon != 0){
-            circle = false;
-            countCircles++;
+        else if(circleBool === true && line === '  8') circle.setLayer(sectionTab[li+1]);
+        else if(circleBool === true && line === ' 10') {
+            var point = new Point();
+            point.setX(parseFloat(sectionTab[li + 1]));
+            point.setY(parseFloat(sectionTab[li + 3]));
+            circle.setPoint(point);
+        }
+        else if(circleBool === true && line === ' 40') circle.setRayon(sectionTab[li+1]);
+        else if(
+            circleBool === true &&
+            circle.layer !== '' &&
+            circle.point !== undefined &&
+            circle.rayon !== 0
+        ){
+            circleBool = false;
+            circles.push(circle);
         }
     });
-
     return circles;
 };
 
 /**
  * Return an array of texts
- * @param   {Array}   sectionTab     Texts are in the entities section
+ * @param   {Array}   sectionTab     The texts are in the entities section
  * @returns {Array}   texts          An array of texts
  */
 Parser.getTexts = function (sectionTab){
 
-  var texts       = [],
-      countTexts  = 0,
-      sectionTab    = sectionTab.entities,
-      text        = false;
+    var texts       = [],
+        text        = undefined,
+        sectionTab  = sectionTab.entities,
+        textBool    = false;
 
-  sectionTab.forEach(function (line, li){
-    if(line == 'TEXT' || line == 'MTEXT'){
-        text = true;
-        texts[countTexts] = {layer : '', txt : '', point : undefined};
-      }
-    else if(text == true && line == '  8') texts[countTexts].layer = sectionTab[li+1];
-	  else if(text == true && line == ' 10') texts[countTexts].point = new utils.point(parseFloat(sectionTab[li+1]), parseFloat(sectionTab[li+3]));
-	  else if(text == true && line == '  1') texts[countTexts].txt = sectionTab[li+1];
-	  else if(text == true && texts[countTexts].point != null && texts[countTexts].txt != null){ 
-	    text=false;
-	    countTexts++;
-	  }
-  });
+    sectionTab.forEach(function (line, li){
 
-  return texts;
+        if(line == 'TEXT' || line == 'MTEXT'){
+            textBool = true;
+            text = new Text();
+        }
+        else if(textBool == true && line == '  8') text.setLayer(sectionTab[li+1]);
+        else if(textBool == true && line == ' 10') {
+            var point = new Point();
+            point.setX(parseFloat(sectionTab[li + 1]));
+            point.setY(parseFloat(sectionTab[li + 3]));
+            text.setPoint(point);
+        }
+        else if(textBool == true && line == '  1') {
+            text.setContents(sectionTab[li+1]);
+            text.parse();
+        }
+        else if(
+            textBool == true &&
+            text.layer != 'defaultLayer' &&
+            text.contents != 'defaultContents' &&
+            text.point != undefined
+
+        ){
+            textBool = false;
+            if(text.contents !== '') texts.push(text);
+        }
+    });
+
+    return texts;
 };
 
 /**
