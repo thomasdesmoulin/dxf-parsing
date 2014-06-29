@@ -2,7 +2,6 @@
 
 var   byline     = require("byline"),
       fs         = require("fs"),
-      utils      = require (__dirname + '/utils'),
       Polygon    = require (__dirname + "/elements/polygon"),
       Circle     = require (__dirname + "/elements/circle"),
       Text       = require (__dirname + "/elements/text"),
@@ -48,7 +47,7 @@ Parser.toArray = function (dxfPath, callback) {
 };
 
 /**
- * Return an array of polygons
+ * Get the polygons in the DXF file
  * @param   {Array}   sectionTab      Polygons are in the entities section
  * @returns {Array}   polygons        An array of polygons
  */
@@ -86,7 +85,7 @@ Parser.getPolygons = function (sectionTab) {
 };
 
 /**
- * Return an array of circles
+ * Get the circles in the DXF file
  * @param   {Array}   sectionTab      Circles are in the entities section
  * @returns {Array}   circles         An array of circles
  */
@@ -124,7 +123,7 @@ Parser.getCircles = function (sectionTab){
 };
 
 /**
- * Return an array of texts
+ * Get the texts in the DXF file
  * @param   {Array}   sectionTab     The texts are in the entities section
  * @returns {Array}   texts          An array of texts
  */
@@ -149,7 +148,7 @@ Parser.getTexts = function (sectionTab){
         }
         else if(textBool == true && line == '  1') {
             text.setContents(sectionTab[li+1]);
-            text.parse();
+            text.contentsParse();
         }
         else if(
             textBool == true &&
@@ -172,24 +171,39 @@ Parser.getTexts = function (sectionTab){
  */
 Parser.getParameters = function (sectionTab) {
 
-    var params     = {originPoint: null, viewCenterPoint: null, rotateAngle: null},
+    var params     = {originPoint: undefined, viewCenterPoint: undefined, rotateAngle: undefined},
         sectionTab = sectionTab.tables,
         vPort      = false;
 
     sectionTab.forEach(function (line, li) {
         if (line == 'AcDbViewportTableRecord') vPort = true;
 
-        else if (vPort == true && line == ' 12') params.viewCenterPoint = new utils.point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
-        else if (vPort == true && line == ' 13') params.originPoint = new utils.point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
+        else if (vPort == true && line == ' 12'){
+            var viewCenterPoint = new Point();
+            point.setX(parseFloat(sectionTab[li + 1]));
+            point.setY(parseFloat(sectionTab[li + 3]));
+            params.viewCenterPoint = viewCenterPoint;
+        }
+        else if (vPort == true && line == ' 13'){
+            var originPoint = new Point();
+            point.setX(parseFloat(sectionTab[li + 1]));
+            point.setY(parseFloat(sectionTab[li + 3]));
+            params.originPoint = originPoint;
+        }
         else if (vPort == true && line == ' 51') params.rotateAngle = parseFloat(sectionTab[li + 1]);
-
-        else if (vPort == true && params.rotateAngle != null && params.originPoint != null && params.viewCenterPoint != null) vPort = false;
+        else if (
+            vPort == true && params.rotateAngle != undefined &&
+            params.originPoint != undefined &&
+            params.viewCenterPoint != undefined)
+        {
+            vPort = false;
+        }
     });
     return params;
 };
 
 /**
- * Return all layers of the appropriate entities
+ * Get the layers of the appropriate entities in the DXF file
  * @param    {Array}    sectionTab     The specific layers are in the entities section
  * @param    {Array}    tabEnt         You can put "text","polygon" or "circle" in the tabEnt (all by default)
  * @returns  {Array}    layers
@@ -220,7 +234,7 @@ Parser.getLayersByEntities = function (sectionTab, tabEnt){
 };
 
 /**
- * Return the all layers of the dxf file
+ * Get all layers of the DXF file
  * @param   {Array}    sectionTab     All layers are in the tables section
  * @returns {Array}    layer
  */
@@ -240,6 +254,95 @@ Parser.getAllLayers = function (sectionTab){
         }
     });
     return layers;
+};
+
+/**
+ * Established a mapping between polygons and texts
+ * @param    {object}    polygons
+ * @param    {object}    texts
+ * @returns  {Array}     mapping
+ */
+Parser.makeMappings = function (polygons, texts){
+
+    var mappings = [];
+
+    texts.forEach(function (text, t){
+        polygons.forEach(function (polygon, p){
+            if(text.point.isInside(polygon.points)){
+                if(!mappings[p]) mappings[p] = {indPolygon : p, indText : [t]};
+                else mappings[p].indText.push(t);
+            }
+        });
+    });
+    return mappings;
+};
+
+/**
+ * Get the polygons of the DXF file which does not have text
+ * @param   {Array}  polygons
+ * @param   {Array}  texts
+ * @returns {Array}  polygonWithoutText
+ */
+Parser.getPolygonsWithoutText = function (polygons, texts){
+
+    var polygonWithoutText = [];
+
+    polygons.forEach(function(polygon, p){
+
+        var textInPolygon = [];
+
+        texts.forEach(function (text, t){
+            if(text.point.isInside(polygon.points)) textInPolygon.push(t);
+        });
+        if (textInPolygon.length === 0) polygonWithoutText.push(p);
+    });
+    return polygonWithoutText;
+};
+
+/**
+ * Get the Texts of the DXF file which does not have polygon
+ * @param   {Array}  texts
+ * @param   {Array}  polygons
+ * @returns {Array}  textsWithoutPolygon
+ */
+Parser.getTextsWithoutPolygon = function (texts, polygons){
+
+    var textsWithoutPolygon = [];
+
+    texts.forEach(function(text, t){
+
+        var polygonWithText = [];
+
+        polygons.forEach(function (polygon, p){
+            if(text.point.isInside(polygon.points)) polygonWithText.push(p);
+        });
+        if (polygonWithText.length === 0) textsWithoutPolygon.push(t);
+    });
+    return textsWithoutPolygon;
+};
+
+/**
+ * Return the min x,z  and the max x,y of the polygon's array
+ * @param   {Array}     polygons
+ * @returns {Object}    {min: point, max: point}
+ */
+Parser.getDimensions = function (polygons){
+
+    var minPoint = new Point(),
+        maxPoint = new Point();
+
+    polygons.forEach(function (polygon, p) {
+        polygon.points.forEach(function (tpoint, i) {
+            minPoint.x = tpoint.x < minPoint.x ? tpoint.x : (i === 0 && p === 0 ? tpoint.x : minPoint.x);
+            minPoint.y = tpoint.y < minPoint.y ? tpoint.y : (i === 0 && p === 0 ? tpoint.y : minPoint.y);
+            maxPoint.x = tpoint.x > maxPoint.x ? tpoint.x : (i === 0 && p === 0 ? tpoint.x : maxPoint.x);
+            maxPoint.y = tpoint.y > maxPoint.y ? tpoint.y : (i === 0 && p === 0 ? tpoint.y : maxPoint.y);
+        });
+    });
+    return {
+        'min': minPoint,
+        'max': maxPoint
+    }
 };
 
 module.exports = Parser;

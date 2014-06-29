@@ -23,25 +23,22 @@ var dxf       = dxfParsing.Parser,
 var section = dxf.toArray("path/to/dxf", function(sectionTab) {
 
        //Extract polygons and texts and do a mapping
-       polygons = dxf.getPolygons(sectionTab.entities);
-       texts = dxf.getTexts(sectionTab.entities);
-       mapping = dxf.getMappings(texts, polygons);
+       polygons = dxf.getPolygons(sectionTab);
+       texts = dxf.getTexts(sectionTab);
+       mapping = dxf.makeMappings(polygons, texts);
 
 
 
        //You can also extract the circles
-       circles = dxf.getCircles(sectionTab.entities);
+       circles = dxf.getCircles(sectionTab);
 
        //Extract layers
-       allLayers = dxf.getAllLayers(sectionTab.tables);
+       allLayers = dxf.getAllLayers(sectionTab);
 
-       layersByEntities = dxf.getLayersByEntities({
-                            ent : ["TEXT", "MTEXT"], //you can also put "LWPOLYLINE" and "CIRCLE"
-                            sectionTab : sectionTab.entities
-                         });
+       layersByEntities = dxf.getLayersByEntities(sectionTab, ["text", "polygon", "circle"]);
 
        //extract parameters and dimension
-       parameters = dxf.getParameters(sectionTab.tables);
+       parameters = dxf.getParameters(sectionTab);
        dimensions = dxf.getDimensions(polygons);
 
     }

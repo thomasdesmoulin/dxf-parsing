@@ -35,7 +35,7 @@ Text.prototype.setPoint = function setPoint(point) {
 /**
  * This prototype is made to parse the contents of Text
  */
-Text.prototype.parse = function parse(){
+Text.prototype.contentsParse = function parse(){
 
     if(/^\{.{1,}\}$/.test(this.contents)){
         this.contents = this.contents.slice(1,-1);
