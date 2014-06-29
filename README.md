@@ -20,7 +20,7 @@ var dxf       = dxfParsing.Parser,
 	parameters = {}, dimensions = {};
 
 
-var section = dxf.toArray("path/to/dxf", function(sectionTab) {
+dxf.toArray("path/to/dxf", function(sectionTab) {
 
        //Extract polygons and texts and do a mapping
        polygons = dxf.getPolygons(sectionTab);
