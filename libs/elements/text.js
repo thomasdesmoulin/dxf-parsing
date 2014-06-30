@@ -44,12 +44,14 @@ Text.prototype.contentsParse = function parse(){
         this.contents = this.contents.split('|');
         this.contents = this.contents[this.contents.length-1].split(';');
         this.contents = this.contents[this.contents.length-1].trim();
-        this.contents = this.contents.replace(/\\[A-Z][0-9]{0,}/g,' ');
-        this.contents = this.contents.replace(/\^[A-Z]/g,' ');
-        this.contents = this.contents.replace(/ {1,}/g,' ');
+    }
+    if(/^\\/.test(this.contents)) {
         this.contents = this.contents.trim();
+        this.contents = this.contents.split(';');
+        this.contents = this.contents[this.contents.length-1].trim();
     }
     this.contents = this.contents.replace(/\\[A-Z][0-9]{0,}/g,' ');
+    this.contents = this.contents.replace(/\^[A-Z]/g,' ');
     this.contents = this.contents.replace(/ {1,}/g,' ');
     this.contents = this.contents.trim();
 };

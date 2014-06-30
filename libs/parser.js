@@ -86,14 +86,16 @@ Parser.getPolygons = function (sectionTab) {
 
 /**
  * Get the circles in the DXF file
- * @param   {Array}   sectionTab      Circles are in the entities section
- * @returns {Array}   circles         An array of circles
+ * @param   {Array}     sectionTab      Circles are in the entities section
+ * @param   {boolean}   toPolygon       true if you want to transforrm directly the circles into polygons
+ * @returns {Array}     circles         An array of circles
  */
-Parser.getCircles = function (sectionTab){
+Parser.getCircles = function (sectionTab, toPolygon){
 
     var circles    = [],
         circle     = undefined,
         sectionTab = sectionTab.entities,
+        toPolygon  = toPolygon || false,
         circleBool = false;
 
     sectionTab.forEach(function (line, li){
@@ -116,6 +118,7 @@ Parser.getCircles = function (sectionTab){
             circle.rayon !== 0
         ){
             circleBool = false;
+            if (toPolygon) circle.toPolygon();
             circles.push(circle);
         }
     });
@@ -124,15 +127,17 @@ Parser.getCircles = function (sectionTab){
 
 /**
  * Get the texts in the DXF file
- * @param   {Array}   sectionTab     The texts are in the entities section
- * @returns {Array}   texts          An array of texts
+ * @param   {Array}    sectionTab         The texts are in the entities section
+ * @param   {boolean}  contentsParse      true if you want to parse the content of text
+ * @returns {Array}    texts              An array of texts
  */
-Parser.getTexts = function (sectionTab){
+Parser.getTexts = function (sectionTab, contentsParse){
 
-    var texts       = [],
-        text        = undefined,
-        sectionTab  = sectionTab.entities,
-        textBool    = false;
+    var texts         = [],
+        text          = undefined,
+        sectionTab    = sectionTab.entities,
+        contentsParse = contentsParse || false,
+        textBool      = false;
 
     sectionTab.forEach(function (line, li){
         if(line == 'TEXT' || line == 'MTEXT'){
@@ -148,7 +153,7 @@ Parser.getTexts = function (sectionTab){
         }
         else if(textBool == true && line == '  1') {
             text.setContents(sectionTab[li+1]);
-            text.contentsParse();
+            if(contentsParse) text.contentsParse();
         }
         else if(
             textBool == true &&
