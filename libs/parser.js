@@ -92,11 +92,12 @@ Parser.getPolygons = function (sectionTab) {
  */
 Parser.getCircles = function (sectionTab, toPolygon){
 
-    var circles    = [],
-        circle     = undefined,
-        sectionTab = sectionTab.entities,
-        toPolygon  = toPolygon || false,
-        circleBool = false;
+    var circles             = [],
+        polygonFromCircle   = undefined,
+        circle              = undefined,
+        sectionTab          = sectionTab.entities,
+        toPolygon           = toPolygon || false,
+        circleBool          = false;
 
     sectionTab.forEach(function (line, li){
         if(line === 'CIRCLE'){
@@ -118,8 +119,11 @@ Parser.getCircles = function (sectionTab, toPolygon){
             circle.rayon !== 0
         ){
             circleBool = false;
-            if (toPolygon) circle.toPolygon();
-            circles.push(circle);
+            if (toPolygon){
+                polygonFromCircle = circle.toPolygon();
+                circles.push(polygonFromCircle);
+            }
+            else circles.push(circle);
         }
     });
     return circles;

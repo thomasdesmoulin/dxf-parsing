@@ -44,7 +44,7 @@ Circle.prototype.setPoint = function setPoint(point) {
  * @returns {Polygon}   polygon
  */
 Circle.prototype.toPolygon = function toPolygon(nbSides){
-    var nbSides   = nbSides || 16,
+    var nbSides   = nbSides || 20,
         angSplit  = Math.PI/(nbSides/2),
         polygon   = new Polygon();
 
