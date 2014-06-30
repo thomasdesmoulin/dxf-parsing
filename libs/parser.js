@@ -189,14 +189,14 @@ Parser.getParameters = function (sectionTab) {
 
         else if (vPort == true && line == ' 12'){
             var viewCenterPoint = new Point();
-            point.setX(parseFloat(sectionTab[li + 1]));
-            point.setY(parseFloat(sectionTab[li + 3]));
+            viewCenterPoint.setX(parseFloat(sectionTab[li + 1]));
+            viewCenterPoint.setY(parseFloat(sectionTab[li + 3]));
             params.viewCenterPoint = viewCenterPoint;
         }
         else if (vPort == true && line == ' 13'){
             var originPoint = new Point();
-            point.setX(parseFloat(sectionTab[li + 1]));
-            point.setY(parseFloat(sectionTab[li + 3]));
+            originPoint.setX(parseFloat(sectionTab[li + 1]));
+            originPoint.setY(parseFloat(sectionTab[li + 3]));
             params.originPoint = originPoint;
         }
         else if (vPort == true && line == ' 51') params.rotateAngle = parseFloat(sectionTab[li + 1]);
