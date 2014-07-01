@@ -1,6 +1,6 @@
 {
   "name": "dxf-parsing",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "dxf-parsing is made to parse dxf files : polygons, texts, circles ...",
   "main": "index.js",
   "dependencies": {
