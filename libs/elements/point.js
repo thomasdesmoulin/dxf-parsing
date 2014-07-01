@@ -58,7 +58,7 @@ Point.prototype.findNearest = function findNearest(points){
         ind          = distCur <= minDist ? pi : ind;
     }.bind(this));
 
-    return {nearest : nearest, ind : ind};
+    return {point : nearest, ind : ind};
 };
 
 
