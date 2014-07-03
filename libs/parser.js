@@ -45,7 +45,7 @@ Parser.toArray = function (dxfPath, callback) {
         callback(error);   
     });
     stream.on('end', function () {
-        callback(null, dxfTab);
+        callback(dxfTab);
     });
 };
 
