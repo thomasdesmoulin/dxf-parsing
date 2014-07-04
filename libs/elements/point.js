@@ -42,23 +42,21 @@ Point.prototype.isInside = function isInside(points) {
 };
 
 /**
- * Return the nearest point and its index of the point
+ * Return the nearest point
  * @param   {[Point]}   points
- * @returns {Object}    nearestPoint, itsIndex
+ * @returns {Point}     nearestPoint
  */
 Point.prototype.findNearest = function findNearest(points){
     var minDist  = 0,
-        ind      = 0,
-        neareast = new Point();
+        nearest = new Point();
 
     points.forEach(function (point, pi){
         var distCur  = Math.sqrt(Math.pow(this.x-point.x, 2)+Math.pow(this.y-point.y, 2));
         minDist      = distCur <= minDist ? distCur : (pi == 0 ? distCur : minDist);
-        neareast     = distCur <= minDist ? point : nearest;
-        ind          = distCur <= minDist ? pi : ind;
+        nearest      = distCur <= minDist ? point : nearest;
     },this);
 
-    return {point : neareast, ind : ind};
+    return nearest;
 };
 
 
