@@ -278,11 +278,13 @@ Parser.makeMappings = function (polygons, texts){
 
     var mappings = [];
 
-    texts.forEach(function (text, t){
+    texts.forEach(function (text){
         polygons.forEach(function (polygon, p){
-            if(text.point.isInside(polygon.points)){
-                if(!mappings[p]) mappings[p] = {indPolygon : p, indText : [t]};
-                else mappings[p].indText.push(t);
+            if(polygon.points !== undefined){
+                if(text.point.isInside(polygon.points)){
+                    if(!mappings[p]) mappings[p] = {polygon : polygon, texts : [text]};
+                    else mappings[p].texts.push(text);
+                }
             }
         });
     });
@@ -299,14 +301,16 @@ Parser.getPolygonsWithoutText = function (polygons, texts){
 
     var polygonWithoutText = [];
 
-    polygons.forEach(function(polygon, p){
+    polygons.forEach(function(polygon){
 
         var textInPolygon = [];
 
         texts.forEach(function (text, t){
-            if(text.point.isInside(polygon.points)) textInPolygon.push(t);
+            if(polygon.points !== undefined){
+                if(text.point.isInside(polygon.points)) textInPolygon.push(t);
+            }
         });
-        if (textInPolygon.length === 0) polygonWithoutText.push(p);
+        if (textInPolygon.length === 0) polygonWithoutText.push(polygon);
     });
     return polygonWithoutText;
 };
@@ -321,14 +325,16 @@ Parser.getTextsWithoutPolygon = function (texts, polygons){
 
     var textsWithoutPolygon = [];
 
-    texts.forEach(function(text, t){
+    texts.forEach(function(text){
 
         var polygonWithText = [];
 
         polygons.forEach(function (polygon, p){
-            if(text.point.isInside(polygon.points)) polygonWithText.push(p);
+            if(polygon.points !== undefined){
+                if(text.point.isInside(polygon.points)) polygonWithText.push(p);
+            }
         });
-        if (polygonWithText.length === 0) textsWithoutPolygon.push(t);
+        if (polygonWithText.length === 0) textsWithoutPolygon.push(text);
     });
     return textsWithoutPolygon;
 };

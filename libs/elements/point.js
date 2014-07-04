@@ -47,18 +47,18 @@ Point.prototype.isInside = function isInside(points) {
  * @returns {Object}    nearestPoint, itsIndex
  */
 Point.prototype.findNearest = function findNearest(points){
-    var minDist = 0,
-        ind     = 0,
-        nearest = new Point();
+    var minDist  = 0,
+        ind      = 0,
+        neareast = new Point();
 
     points.forEach(function (point, pi){
         var distCur  = Math.sqrt(Math.pow(this.x-point.x, 2)+Math.pow(this.y-point.y, 2));
         minDist      = distCur <= minDist ? distCur : (pi == 0 ? distCur : minDist);
-        nearest      = distCur <= minDist ? point : nearest;
+        neareast     = distCur <= minDist ? point : nearest;
         ind          = distCur <= minDist ? pi : ind;
-    }.bind(this));
+    },this);
 
-    return {point : nearest, ind : ind};
+    return {point : neareast, ind : ind};
 };
 
 
