@@ -3,6 +3,9 @@
  * @constructor
  */
 function Text (layer, contents, point) {
+    if (!(this instanceof Text))
+        throw 'this function in a constructor. Use new to call it';
+
     this.layer    = layer || 'defaultLayer';
     this.contents = contents || 'defaultContents';
     this.point    = point || undefined;

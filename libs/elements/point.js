@@ -5,6 +5,9 @@
  * @constructor
  */
 function Point (x,y) {
+    if (!(this instanceof Point))
+        throw 'this function in a constructor. Use new to call it';
+
     this.x = x || 0;
     this.y = y || 0;
 }

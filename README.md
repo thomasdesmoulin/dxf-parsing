@@ -12,12 +12,9 @@ npm install dxf-parsing
 ## Usage
 
 ```javascript
-var dxfParsing = require('dxf-parsing');
+var dxfparsing = require('dxf-parsing');
 
-var dxf       = dxfParsing.Parser,
-	polygons  = [], circles = [], texts = [],
-	allLayers = [], layersByEntities = [], mapping = [],
-	parameters = {}, dimensions = {};
+var dxf = dxfparsing.Parser;
 
 
 dxf.toArray("path/to/dxf", function(sectionTab) {
@@ -31,6 +28,9 @@ dxf.toArray("path/to/dxf", function(sectionTab) {
 
        //You can also extract the circles
        circles = dxf.getCircles(sectionTab);
+
+       //and transform directly circles into polygons with options
+       circles = dxf.getCircles(sectionTab, {toPolygon : true, nbSides : 16});
 
        //Extract layers
        allLayers = dxf.getAllLayers(sectionTab);

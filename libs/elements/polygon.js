@@ -7,6 +7,9 @@ var Point = require (__dirname + '/point');
  * @constructor
  */
 function Polygon (layer, numberPoints, points) {
+    if (!(this instanceof Polygon))
+        throw 'this function in a constructor. Use new to call it';
+
     this.layer        = layer || 'defaultLayer';
     this.numberPoints = numberPoints || 0;
     this.points       = points || [];

@@ -8,6 +8,9 @@ var Polygon = require (__dirname + '/polygon'),
  * @constructor
  */
 function Circle (layer, rayon, point) {
+    if (!(this instanceof Circle))
+        throw 'this function in a constructor. Use new to call it';
+
     this.layer  = layer || 'defaultLayer';
     this.rayon  = rayon || 0;
     this.point  = point || undefined;

@@ -1,6 +1,6 @@
 {
   "name": "dxf-parsing",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "dxf-parsing is made to parse dxf files : polygons, texts, circles ...",
   "main": "index.js",
   "dependencies": {
@@ -22,7 +22,7 @@
     "layer"
   ],
   "author": "Thomas Desmoulin",
-  "license": "BSD-2-Clause",
+  "license": "Apache",
   "bugs": {
     "url": "https://github.com/thomasdesmoulin/dxf-parsing/issues"
   },

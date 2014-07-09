@@ -64,7 +64,7 @@ Parser.getPolygons = function (sectionTab) {
     sectionTab.forEach(function (line, li) {
         if (line === 'LWPOLYLINE') {
             polygonBool = true;
-            polygon    = new Polygon();
+            polygon     = new Polygon();
         }
         else if (polygonBool === true && line === '  8') polygon.setLayer(sectionTab[li + 1]);
         else if (polygonBool === true && line === ' 90') polygon.setNumberPoints(parseInt(sectionTab[li + 1]));
@@ -89,17 +89,20 @@ Parser.getPolygons = function (sectionTab) {
 
 /**
  * Get the circles in the DXF file
- * @param   {Array}     sectionTab      Circles are in the entities section
- * @param   {boolean}   toPolygon       true if you want to transforrm directly the circles into polygons
- * @returns {Array}     circles         An array of circles
+ * @param   {Array}     sectionTab          Circles are in the entities section
+ * @param   {object}    options             Function options
+ * @param   {boolean}   options.toPolygon   true if you want to transforrm directly the circles into polygons
+ * @param   {int}       options.nbSides     you can choose the number of sides of polygons from circle (default 20 sides)
+ * @returns {Array}     circles             An array of circles
  */
-Parser.getCircles = function (sectionTab, toPolygon){
+Parser.getCircles = function (sectionTab, options){
 
     var circles             = [],
         polygonFromCircle   = undefined,
         circle              = undefined,
         sectionTab          = sectionTab.entities,
-        toPolygon           = toPolygon || false,
+        toPolygon           = options !== undefined ? options.toPolygon : false,
+        nbSides             = options !== undefined ? options.nbSides : 20,
         circleBool          = false;
 
     sectionTab.forEach(function (line, li){
@@ -123,7 +126,7 @@ Parser.getCircles = function (sectionTab, toPolygon){
         ){
             circleBool = false;
             if (toPolygon){
-                polygonFromCircle = circle.toPolygon();
+                polygonFromCircle = circle.toPolygon(nbSides);
                 circles.push(polygonFromCircle);
             }
             else circles.push(circle);
@@ -135,15 +138,13 @@ Parser.getCircles = function (sectionTab, toPolygon){
 /**
  * Get the texts in the DXF file
  * @param   {Array}    sectionTab         The texts are in the entities section
- * @param   {boolean}  contentsParse      true if you want to parse the content of text
  * @returns {Array}    texts              An array of texts
  */
-Parser.getTexts = function (sectionTab, contentsParse){
+Parser.getTexts = function (sectionTab){
 
     var texts         = [],
         text          = undefined,
         sectionTab    = sectionTab.entities,
-        contentsParse = contentsParse || false,
         textBool      = false;
 
     sectionTab.forEach(function (line, li){
@@ -160,7 +161,7 @@ Parser.getTexts = function (sectionTab, contentsParse){
         }
         else if(textBool == true && line == '  1') {
             text.setContents(sectionTab[li+1]);
-            if(contentsParse) text.contentsParse();
+            text.contentsParse();
         }
         else if(
             textBool == true &&
