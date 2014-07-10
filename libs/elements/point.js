@@ -4,12 +4,13 @@
  * Points's constructor
  * @constructor
  */
-function Point (x,y) {
+function Point (x, y, bulge) {
     if (!(this instanceof Point))
         throw 'this function in a constructor. Use new to call it';
 
     this.x = x || 0;
     this.y = y || 0;
+    this.bulge = bulge || 0;
 }
 
 /**
@@ -26,6 +27,14 @@ Point.prototype.setX = function setX(x) {
  */
 Point.prototype.setY = function setY(y) {
     this.y = y;
+};
+
+/**
+ * Set the bulge
+ * @param {number} bulge
+ */
+Point.prototype.setBulge = function setBulge(bulge) {
+    this.bulge = bulge;
 };
 
 /**

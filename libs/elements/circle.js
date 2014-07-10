@@ -52,7 +52,7 @@ Circle.prototype.toPolygon = function toPolygon(nbSides){
         polygon   = new Polygon();
 
     polygon.setLayer(this.layer);
-    polygon.setNumberPoints(nbSides);
+    polygon.setNumberPoints(nbSides + 1);
 
     for (var angCur = 0; angCur <= 2*Math.PI; angCur += angSplit){
         var point = new Point();

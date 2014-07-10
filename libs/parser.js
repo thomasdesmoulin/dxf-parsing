@@ -72,6 +72,7 @@ Parser.getPolygons = function (sectionTab) {
             var point = new Point();
             point.setX(parseFloat(sectionTab[li + 1]));
             point.setY(parseFloat(sectionTab[li + 3]));
+            if (sectionTab[li + 4] === ' 42') point.setBulge(parseFloat(sectionTab[li + 5]));
             polygon.addPoint(point);
         }
         else if (
