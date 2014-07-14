@@ -66,7 +66,7 @@ Parser.getPolygons = function (sectionTab) {
             polygonBool = true;
             polygon     = new Polygon();
         }
-        else if (polygonBool === true && line === '  8') polygon.setLayer(sectionTab[li + 1]);
+        else if (polygonBool === true && line === '  8') polygon.setLayer(sectionTab[li + 1].replace(/ {1,}/g,""));
         else if (polygonBool === true && line === ' 90') polygon.setNumberPoints(parseInt(sectionTab[li + 1]));
         else if (polygonBool === true && line === ' 10') {
             var point = new Point();
@@ -112,7 +112,7 @@ Parser.getCircles = function (sectionTab, options){
             circleBool = true;
             circle = new Circle();
         }
-        else if(circleBool === true && line === '  8') circle.setLayer(sectionTab[li+1]);
+        else if(circleBool === true && line === '  8') circle.setLayer(sectionTab[li+1].replace(/ {1,}/g,""));
         else if(circleBool === true && line === ' 10') {
             var point = new Point();
             point.setX(parseFloat(sectionTab[li + 1]));
@@ -158,7 +158,7 @@ Parser.getTexts = function (sectionTab){
             textBool = true;
             text = new Text();
         }
-        else if(textBool == true && line == '  8') text.setLayer(sectionTab[li+1]);
+        else if(textBool == true && line == '  8') text.setLayer(sectionTab[li+1].replace(/ {1,}/g,""));
         else if(textBool == true && line == ' 10') {
             var point = new Point();
             point.setX(parseFloat(sectionTab[li + 1]));
