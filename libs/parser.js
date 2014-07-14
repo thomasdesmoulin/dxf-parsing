@@ -180,7 +180,7 @@ Parser.getTexts = function (sectionTab){
             if(text.contents !== ''){
                 if(!texts[text.layer]) texts[text.layer] = [text];
                 else texts[text.layer].push(text);
-            }
+            } texts.push(text);
         }
     });
     return texts;
@@ -248,7 +248,7 @@ Parser.getLayersByEntities = function (sectionTab, tabEnt){
         sectionTab.forEach(function (line, li){
             if(tabEnt.indexOf(line) !== -1) ent = true;
             else if(ent === true && line == '  8'){
-                if(layers.indexOf(sectionTab[li+1]) === -1) layers.push(sectionTab[li+1]);
+                if(layers.indexOf(sectionTab[li+1].replace(/ {1,}/g,"")) === -1) layers.push(sectionTab[li+1].replace(/ {1,}/g,""));
             }
         });
     }
@@ -269,8 +269,8 @@ Parser.getAllLayers = function (sectionTab){
     sectionTab.forEach(function (line, li){
         if(line === "AcDbLayerTableRecord") getLayer = true;
         else if(getLayer === true && line === '  2'){
-            if(layers.indexOf(sectionTab[li+1]) === -1){
-                layers.push(sectionTab[li+1]);
+            if(layers.indexOf(sectionTab[li+1].replace(/ {1,}/g,"")) === -1){
+                layers.push(sectionTab[li+1].replace(/ {1,}/g,""));
                 getLayer = false;
             }
         }
