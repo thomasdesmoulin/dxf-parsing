@@ -80,10 +80,11 @@ Parser.getPolygons = function (sectionTab) {
             polygon.numberPoints !== 0 &&
             polygon.layer !== 'defaultLayer' &&
             polygon.points.length === polygon.numberPoints
-         ){
+        ){
             polygonBool = false;
-            polygons.push(polygon);
-         }
+            if(!polygons[polygon.layer]) polygons[polygon.layer] = [polygon];
+            else polygons[polygon.layer].push(polygon);
+        }
     });
     return polygons;
 };
@@ -128,9 +129,13 @@ Parser.getCircles = function (sectionTab, options){
             circleBool = false;
             if (toPolygon){
                 polygonFromCircle = circle.toPolygon(nbSides);
-                circles.push(polygonFromCircle);
+                if(!circles[polygonFromCircle.layer]) circles[polygonFromCircle.layer] = [polygonFromCircle];
+                else circles[polygonFromCircle.layer].push(polygonFromCircle);
             }
-            else circles.push(circle);
+            else{
+                if(!circles[circle.layer]) circles[circle.layer] = [circle];
+                else circles[circle.layer].push(circle);
+            }
         }
     });
     return circles;
@@ -172,7 +177,10 @@ Parser.getTexts = function (sectionTab){
 
         ){
             textBool = false;
-            if(text.contents !== '') texts.push(text);
+            if(text.contents !== ''){
+                if(!texts[text.layer]) texts[text.layer] = [text];
+                else texts[text.layer].push(text);
+            }
         }
     });
     return texts;
