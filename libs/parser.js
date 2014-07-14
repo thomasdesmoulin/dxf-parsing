@@ -82,7 +82,7 @@ Parser.getPolygons = function (sectionTab) {
             polygon.points.length === polygon.numberPoints
         ){
             polygonBool = false;
-            if(!polygons[polygon.layer]) polygons[polygon.layer] = [polygon];
+            if (!polygons[polygon.layer]) polygons[polygon.layer] = [polygon];
             else polygons[polygon.layer].push(polygon);
         }
     });
