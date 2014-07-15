@@ -180,7 +180,7 @@ Parser.getTexts = function (sectionTab){
             if(text.contents !== ''){
                 if(!texts[text.layer]) texts[text.layer] = [text];
                 else texts[text.layer].push(text);
-            } texts.push(text);
+            }
         }
     });
     return texts;
