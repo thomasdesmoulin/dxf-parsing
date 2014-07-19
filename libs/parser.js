@@ -234,7 +234,8 @@ Parser.getLayersByEntities = function (sectionTab, tabEnt){
 
     var layers     = [],
         tabTmp     = tabEnt || 'all',
-        ent        = false;
+        ent        = false,
+        entCur     = '';
 
     if(tabTmp === 'all') layers = Parser.getAllLayers(sectionTab);
     else{
@@ -246,9 +247,24 @@ Parser.getLayersByEntities = function (sectionTab, tabEnt){
         if (tabTmp.indexOf("circle") !== -1) tabEnt.push("CIRCLE");
 
         sectionTab.forEach(function (line, li){
-            if(tabEnt.indexOf(line) !== -1) ent = true;
+            if(tabEnt.indexOf(line) !== -1){
+                if (line === "MTEXT" || line === "TEXT" ) entCur = "text";
+                else if (line === "LWPOLYLINE") entCur = "polygon";
+                else if (line === "CIRCLE" || line === "TEXT" ) entCur = "circle";
+                ent = true;
+            }
             else if(ent === true && line == '  8'){
-                if(layers.indexOf(sectionTab[li+1].replace(/ {1,}/g,"")) === -1) layers.push(sectionTab[li+1].replace(/ {1,}/g,""));
+                var layerCur = sectionTab[li+1].replace(/ {1,}/g,"");
+                if (!layers[entCur]){
+                    layers[entCur] = [layerCur];
+                    ent = false;
+                    entCur = '';
+                }
+                else if (layers[entCur].indexOf(layerCur) === -1){
+                    layers[entCur].push(layerCur);
+                    ent = false;
+                    entCur = '';
+                }
             }
         });
     }
