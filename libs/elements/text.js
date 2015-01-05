@@ -12,30 +12,6 @@ function Text (layer, contents, point) {
 }
 
 /**
- * Set the layer
- * @param {String} layer
- */
-Text.prototype.setLayer = function setLayer(layer) {
-    this.layer = layer;
-};
-
-/**
- * Set the contents
- * @param {String}  contents
- */
-Text.prototype.setContents = function setContents(contents) {
-    this.contents = contents;
-};
-
-/**
- * Set the point
- * @param {Point}   point
- */
-Text.prototype.setPoint = function setPoint(point) {
-    this.point = point;
-};
-
-/**
  * This prototype is made to parse the contents of Text
  */
 Text.prototype.contentsParse = function parse(){
