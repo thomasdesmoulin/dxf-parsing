@@ -14,30 +14,6 @@ function Point (x, y, bulge) {
 }
 
 /**
- * Set x
- * @param {Number} x
- */
-Point.prototype.setX = function setX(x) {
-    this.x = x;
-};
-
-/**
- * Set Y
- * @param {Number} y
- */
-Point.prototype.setY = function setY(y) {
-    this.y = y;
-};
-
-/**
- * Set the bulge
- * @param {number} bulge
- */
-Point.prototype.setBulge = function setBulge(bulge) {
-    this.bulge = bulge;
-};
-
-/**
  * Return if the point is inside a polygon or not
  * @param   {[Point]} points
  * @returns {Boolean}
@@ -59,14 +35,14 @@ Point.prototype.isInside = function isInside(points) {
  * @returns {Point}     nearestPoint
  */
 Point.prototype.findNearest = function findNearest(points){
-    var minDist  = 0,
+    var minDist = 0,
         nearest = new Point();
 
-    points.forEach(function (point, pi){
-        var distCur  = Math.sqrt(Math.pow(this.x-point.x, 2)+Math.pow(this.y-point.y, 2));
+    for (var pi = 0; pi < points.length; pi ++ ){
+        var distCur  = Math.sqrt(Math.pow(this.x-points[pi].x, 2)+Math.pow(this.y-points[pi].y, 2));
         minDist      = distCur <= minDist ? distCur : (pi == 0 ? distCur : minDist);
-        nearest      = distCur <= minDist ? point : nearest;
-    },this);
+        nearest      = distCur <= minDist ? points[pi] : nearest;
+    }
 
     return nearest;
 };
