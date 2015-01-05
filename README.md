@@ -17,7 +17,7 @@ var dxfparsing = require('dxf-parsing');
 var dxf = dxfparsing.Parser;
 
 
-dxf.toArray("path/to/dxf", function(sectionTab) {
+dxf.toArray("path/to/dxf", function(error, sectionTab) {
 
        //Extract polygons and texts and do a mapping
        polygons = dxf.getPolygons(sectionTab);
