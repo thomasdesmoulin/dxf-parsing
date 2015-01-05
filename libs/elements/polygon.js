@@ -16,22 +16,6 @@ function Polygon (layer, numberPoints, points) {
 }
 
 /**
- * Set the layer
- * @param {String}  layer
- */
-Polygon.prototype.setLayer = function setLayer(layer) {
-    this.layer = layer;
-};
-
-/**
- * Set the number of points
- * @param {int} numberPoints
- */
-Polygon.prototype.setNumberPoints = function setNumberPoints(numberPoints) {
-    this.numberPoints = numberPoints;
-};
-
-/**
  * Add a point to the polygon
  * @param  point
  */
