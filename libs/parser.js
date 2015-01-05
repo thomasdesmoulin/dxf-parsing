@@ -17,7 +17,8 @@ var Parser = {};
 Parser.toArray = function (dxfPath, callback) {
 
     var stream         = byline(fs.createReadStream(dxfPath, { encoding: 'utf8' })),
-        sectionNameTab = ['HEADER', 'CLASSES', 'TABLES', 'BLOCKS', 'ENTITIES', 'OBJECTS', 'THUMBNAILIMAGE'],
+        sectionNameTab = ['TABLES', 'ENTITIES'],
+        //sectionNameTab = ['HEADER', 'CLASSES', 'TABLES', 'BLOCKS', 'ENTITIES', 'OBJECTS', 'THUMBNAILIMAGE'],
         sectionCur     = '',
         dxfTab         = [],
         section        = false,
@@ -51,14 +52,14 @@ Parser.toArray = function (dxfPath, callback) {
 
 /**
  * Get the polygons in the DXF file
- * @param   {Array}   sectionTab      Polygons are in the entities section
+ * @param   {Array}   sections      Polygons are in the entities section
  * @returns {Array}   polygons        An array of polygons
  */
-Parser.getPolygons = function (sectionTab) {
+Parser.getPolygons = function (sections) {
 
     var polygons    = [],
         polygon     = undefined,
-        sectionTab  = sectionTab.entities,
+        sectionTab  = sections.entities,
         polygonBool = false;
 
     sectionTab.forEach(function (line, li) {
@@ -66,13 +67,11 @@ Parser.getPolygons = function (sectionTab) {
             polygonBool = true;
             polygon     = new Polygon();
         }
-        else if (polygonBool === true && line === '  8') polygon.setLayer(sectionTab[li + 1].replace(/ {1,}/g,""));
-        else if (polygonBool === true && line === ' 90') polygon.setNumberPoints(parseInt(sectionTab[li + 1]));
+        else if (polygonBool === true && line === '  8') polygon.layer = sectionTab[li + 1].replace(/ {1,}/g,"");
+        else if (polygonBool === true && line === ' 90') polygon.numberPoints = parseInt(sectionTab[li + 1]);
         else if (polygonBool === true && line === ' 10') {
-            var point = new Point();
-            point.setX(parseFloat(sectionTab[li + 1]));
-            point.setY(parseFloat(sectionTab[li + 3]));
-            if (sectionTab[li + 4] === ' 42') point.setBulge(parseFloat(sectionTab[li + 5]));
+            var point = new Point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
+            if (sectionTab[li + 4] === ' 42') point.bulge = parseFloat(sectionTab[li + 5]);
             polygon.addPoint(point);
         }
         else if (
@@ -91,18 +90,18 @@ Parser.getPolygons = function (sectionTab) {
 
 /**
  * Get the circles in the DXF file
- * @param   {Array}     sectionTab          Circles are in the entities section
+ * @param   {Array}     sections          Circles are in the entities section
  * @param   {object}    options             Function options
  * @param   {boolean}   options.toPolygon   true if you want to transforrm directly the circles into polygons
  * @param   {int}       options.nbSides     you can choose the number of sides of polygons from circle (default 20 sides)
  * @returns {Array}     circles             An array of circles
  */
-Parser.getCircles = function (sectionTab, options){
+Parser.getCircles = function (sections, options){
 
     var circles             = [],
         polygonFromCircle   = undefined,
         circle              = undefined,
-        sectionTab          = sectionTab.entities,
+        sectionTab          = sections.entities,
         toPolygon           = options !== undefined ? options.toPolygon : false,
         nbSides             = options !== undefined ? options.nbSides : 20,
         circleBool          = false;
@@ -112,14 +111,11 @@ Parser.getCircles = function (sectionTab, options){
             circleBool = true;
             circle = new Circle();
         }
-        else if(circleBool === true && line === '  8') circle.setLayer(sectionTab[li+1].replace(/ {1,}/g,""));
+        else if(circleBool === true && line === '  8') circle.layer = sectionTab[li+1].replace(/ {1,}/g,"");
         else if(circleBool === true && line === ' 10') {
-            var point = new Point();
-            point.setX(parseFloat(sectionTab[li + 1]));
-            point.setY(parseFloat(sectionTab[li + 3]));
-            circle.setPoint(point);
+            circle.point = new Point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
         }
-        else if(circleBool === true && line === ' 40') circle.setRayon(sectionTab[li+1]);
+        else if(circleBool === true && line === ' 40') circle.rayon = sectionTab[li+1];
         else if(
             circleBool === true &&
             circle.layer !== 'defaultLayer' &&
@@ -143,14 +139,14 @@ Parser.getCircles = function (sectionTab, options){
 
 /**
  * Get the texts in the DXF file
- * @param   {Array}    sectionTab         The texts are in the entities section
+ * @param   {Array}    sections           The texts are in the entities section
  * @returns {Array}    texts              An array of texts
  */
-Parser.getTexts = function (sectionTab){
+Parser.getTexts = function (sections){
 
     var texts         = [],
         text          = undefined,
-        sectionTab    = sectionTab.entities,
+        sectionTab    = sections.entities,
         textBool      = false;
 
     sectionTab.forEach(function (line, li){
@@ -158,15 +154,12 @@ Parser.getTexts = function (sectionTab){
             textBool = true;
             text = new Text();
         }
-        else if(textBool == true && line == '  8') text.setLayer(sectionTab[li+1].replace(/ {1,}/g,""));
+        else if(textBool == true && line == '  8') text.layer = sectionTab[li+1].replace(/ {1,}/g,"");
         else if(textBool == true && line == ' 10') {
-            var point = new Point();
-            point.setX(parseFloat(sectionTab[li + 1]));
-            point.setY(parseFloat(sectionTab[li + 3]));
-            text.setPoint(point);
+            text.point = new Point(parseFloat(sectionTab[li + 1]), parseFloat(sectionTab[li + 3]));
         }
         else if(textBool == true && line == '  1') {
-            text.setContents(sectionTab[li+1]);
+            text.contents = sectionTab[li+1];
             text.contentsParse();
         }
         else if(
@@ -188,58 +181,39 @@ Parser.getTexts = function (sectionTab){
 
 /**
  * Get Parameters : the origin point of the view, its center point and its rotate angle
- * @param   {Array}    sectionTab     The parameters are in the tables section
- * @returns {Object}   params         originPoint, viewCenterPoint, rotateAngle
+ * @param   {Array}    sections       The parameters are in the tables section
+ * @returns {Object}   params         rotateAngle
  */
-Parser.getParameters = function (sectionTab) {
+Parser.getParameters = function (sections) {
 
-    var params     = {originPoint: undefined, viewCenterPoint: undefined, rotateAngle: undefined},
-        sectionTab = sectionTab.tables,
+    var params     = {rotateAngle: undefined},
+        sectionTab = sections.tables,
         vPort      = false;
 
     sectionTab.forEach(function (line, li) {
         if (line == 'AcDbViewportTableRecord') vPort = true;
-
-        else if (vPort == true && line == ' 12'){
-            var viewCenterPoint = new Point();
-            viewCenterPoint.setX(parseFloat(sectionTab[li + 1]));
-            viewCenterPoint.setY(parseFloat(sectionTab[li + 3]));
-            params.viewCenterPoint = viewCenterPoint;
-        }
-        else if (vPort == true && line == ' 13'){
-            var originPoint = new Point();
-            originPoint.setX(parseFloat(sectionTab[li + 1]));
-            originPoint.setY(parseFloat(sectionTab[li + 3]));
-            params.originPoint = originPoint;
-        }
         else if (vPort == true && line == ' 51') params.rotateAngle = parseFloat(sectionTab[li + 1]);
-        else if (
-            vPort == true && params.rotateAngle != undefined &&
-            params.originPoint != undefined &&
-            params.viewCenterPoint != undefined)
-        {
-            vPort = false;
-        }
+        else if (vPort == true && params.rotateAngle != undefined) vPort = false;
     });
     return params;
 };
 
 /**
  * Get the layers of the appropriate entities in the DXF file
- * @param    {Array}    sectionTab     The specific layers are in the entities section
- * @param    {Array}    tabEnt         You can put "text","polygon" or "circle" in the tabEnt (all by default)
+ * @param    {Array}    sections     The specific layers are in the entities section
+ * @param    {Array}    ents         You can put "text","polygon" or "circle" in the tabEnt (all by default)
  * @returns  {Array}    layers
  */
-Parser.getLayersByEntities = function (sectionTab, tabEnt){
+Parser.getLayersByEntities = function (sections, ents){
 
     var layers     = [],
-        tabTmp     = tabEnt || 'all',
+        tabTmp     = ents || 'all',
         ent        = false,
         entCur     = '';
 
-    if(tabTmp === 'all') layers = Parser.getAllLayers(sectionTab);
+    if(tabTmp === 'all') layers = Parser.getAllLayers(sections);
     else{
-        var sectionTab = sectionTab.entities,
+        var sectionTab = sections.entities,
             tabEnt     = [];
 
         if (tabTmp.indexOf("text") !== -1) tabEnt.push("MTEXT", "TEXT");
@@ -273,13 +247,13 @@ Parser.getLayersByEntities = function (sectionTab, tabEnt){
 
 /**
  * Get all layers of the DXF file
- * @param   {Array}    sectionTab     All layers are in the tables section
+ * @param   {Array}    sections     All layers are in the tables section
  * @returns {Array}    layer
  */
-Parser.getAllLayers = function (sectionTab){
+Parser.getAllLayers = function (sections){
 
     var layers       = [],
-        sectionTab   = sectionTab.tables,
+        sectionTab   = sections.tables,
         getLayer     = false;
 
     sectionTab.forEach(function (line, li){
